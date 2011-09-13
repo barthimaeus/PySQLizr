@@ -160,6 +160,7 @@ class CustomSQLHandler(BaseHandler):
 define("port", default=8888, help="run on the given port", type=int)
 settings = {
             "static_path": os.path.join(os.path.dirname(__file__), "static"),
+            #it is important, that you generate some proper randomness on your own.
             "cookie_secret": "Nzk4MmYwZmUzZTBmYmUwMDFjODcyNzM0Mzg0ZDc1ZWQgIC0K"
             }
 

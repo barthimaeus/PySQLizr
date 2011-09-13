@@ -17,3 +17,7 @@ PySQLizr - Python SQLite Database Editor
 
 PySQLizrs aim is to create an online SQLite Database editor similar to phpPgAdmin
 for use in my blogsoftware Tommy.
+
+Idea for generating some randomness to use for  the secure cookie:
+    dd if=/dev/urandom bs=1 count=50 | base64
+
