@@ -1,0 +1,48 @@
+<html>
+<head>
+    <script type="text/javascript" src="/static/scripts/jquery-1.6.2.js"></script>
+    <script type="text/javascript" src="/static/scripts/jquery-ui-1.8.16.custom.min.js"></script>
+    <script type="text/javascript" src="/static/scripts/backend_form.js"></script>
+    <link href="/static/css/jquery-ui-1.8.16.custom.css" type="text/css" rel="stylesheet"></link>
+</head>
+<body>
+<div id="backendform" class="ui-widget">
+	<div class="ui-widget-header ui-corner-top" style="text-align: center;">Python SQLite Backend</div>
+	<div class="ui-widget-content ui-corner-bottom">
+		<div style="float: left;width:20%;">
+			<div class="ui-widget" style="padding: 5px;">
+				<div class="ui-widget-header ui-corner-top">Tabellen</div>
+				<div id="tables" class="ui-widget-content ui-corner-bottom" style="padding: 5px;">
+				<ul>
+				{% for table in tables %}
+				<li>
+				{{ table }} <img align="right" class = "modifylink" target = "{{ table }}" src="/static/resources/edit.png">
+				</li>
+				{% end %}
+				</ul>
+				</div>
+			</div>
+		</div>
+		<div style="float: left; width:80%;">
+			<div class="ui-widget" style="padding: 5px;">
+				<div id="editortitle" class="ui-widget-header ui-corner-top">Editor</div>
+				<div id="editor" class="ui-widget-content ui-corner-bottom">
+
+				</div>
+			</div>
+		</div>
+
+		<div class="ui-widget" style="padding: 5px; clear: both;">
+			<div class="ui-widget-header ui-corner-top">SQL Input</div>
+			<div class="ui-widget-content ui-corner-bottom" style="padding: 5px;">
+				<form id="sqlinputform" style="margin-bottom: 0;" action="/">
+					<textarea id="inputarea" name="sqlinput" rows="1" style="width: 100%;"></textarea>
+				</form>
+				<button id="sqlinputbutton">Execute</button>
+				<button id="logoutbutton">Logout</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+</body>

@@ -1,0 +1,19 @@
+$(document).ready(
+	function(){
+		$("#loginform").draggable();
+		$("#loginbutton").button();
+		$("#loginbutton").click(
+			function() {
+				$.post(
+					"/login",
+					$("#form").serialize(),
+					function(data){
+						alert(data["message"]);
+						window.location="/backend";
+					},
+					"json"
+				)
+			}
+		)
+	}
+)
