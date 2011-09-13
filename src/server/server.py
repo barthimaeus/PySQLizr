@@ -115,8 +115,9 @@ class BackendHandler(BaseHandler):
         tablestatement = "".join(tablestatement[:-1])
         tablestatement = tablestatement.split(", ")
         mapfunc = (lambda x:
-                        (not ("REFERENCES" in x)) and x
-                        or x.split(" ")[0])
+                        (not ((" REFERENCES " in x) or (" references " in x))
+                         and x
+                         or x.split(" ")[0]))
         tableschema = map(mapfunc, tablestatement)
 
         self.dbi.execute("SELECT * FROM {0};".format(table))
