@@ -7,22 +7,20 @@
 		<th></th>
 		</tr>
 	</thead>
-	<tbody class="ui-widget-content" style="text-align: right;">
+	<tbody id="editortable" targettable="{{ table }}" class="ui-widget-content" style="text-align: right;">
 		{% for row in rows %}
-			<tr>
-				{% for field in row %}
-				<td>
+			<tr class="editorrow"  targetrow="{{ row[0] }}">
+				{% for nr, field in enumerate(row[1:]) %}
+				<td class="editorcell" column="{{ schema[nr].split(" ")[0] }}">
 				{{ field }}
 				</td>
 				{% end %}
-				<td>
-					<img align="right" class = "deletelink"
-					targettable = "{{ table }}"
-					targetcolumn="{{ schema[0].split(" ")[0] }}"
-					targetval="{{ row[0] }}"
-					src="/static/resources/delete.png">
+				<td class = "deletelink">
+					<img align="right"
+						src="/static/resources/delete.png">
 				</td>
 			</tr>
 		{% end %}
 	</tbody>
 </table>
+<button id="newrow">Create</button>

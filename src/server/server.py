@@ -37,6 +37,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def __init__(self, var1, var2):
         super(BaseHandler, self).__init__(var1, var2)
         self.dbi = DBInterface("database.db")
+        self.usersession = None
 
     def get_current_user(self):
         return self.get_secure_cookie("user")
@@ -45,8 +46,8 @@ class BaseHandler(tornado.web.RequestHandler):
         if not sessionstring:
             sessionstring = self.get_secure_cookie("session")
         sessionhash = self.hash_string(sessionstring)
-        usersession = Session(self.dbi, sessionhash)
-        return usersession
+        self.usersession = Session(self.dbi, sessionhash)
+        return self.usersession
 
     def hash_string(self, string):
         hasher = sha1(string)
@@ -57,7 +58,7 @@ class BaseHandler(tornado.web.RequestHandler):
             self.redirect("/login")
             return
         try:
-            usersession = self.get_current_session()
+            self.usersession = self.get_current_session()
         except SessionTimeout:
             self.redirect("/login")
             return
@@ -65,8 +66,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class LoginHandler(BaseHandler):
     def get(self):
-        loginfile = open("static/templates/login_form.html", "r")
-        self.write(loginfile.read())
+        self.render("login_form.html")
 
     def post(self):
         user = self.get_argument("user").strip()
@@ -95,14 +95,14 @@ class LoginHandler(BaseHandler):
 class BackendHandler(BaseHandler):
     def get(self):
         self.handle_authentication()
-        backendformfile = "static/templates/backend_form.html"
+        backendformfile = "backend_form.html"
         self.dbi.execute("SELECT name FROM sqlite_master;")
         tablenames = map(lambda x: x[0], self.dbi.fetchall())
         self.render(backendformfile, tables=tablenames)
 
     def post(self):
         self.handle_authentication()
-        backendformeditorfile = "static/templates/backend_form_editor.html"
+        backendformeditorfile = "backend_form_editor.html"
         table = self.get_argument("table")
         response = {"table": table}
         self.dbi.execute(
@@ -120,7 +120,7 @@ class BackendHandler(BaseHandler):
                          or x.split(" ")[0]))
         tableschema = map(mapfunc, tablestatement)
 
-        self.dbi.execute("SELECT * FROM {0};".format(table))
+        self.dbi.execute("SELECT rowid,* FROM {0};".format(table))
         tablerows = self.dbi.fetchall()
         escapefunction = lambda x: html_escape("%s" % x)
         tablerows = [map(escapefunction, x) for x in tablerows]
@@ -140,7 +140,7 @@ class CustomSQLHandler(BaseHandler):
         self.handle_authentication()
         query = self.get_argument("sqlinput")
         if query == "logout":
-            usersession.logout()
+            self.usersession.logout()
             self.write({"status": "ok", "response": "logged out"})
             self.finish()
             return
@@ -158,11 +158,12 @@ class CustomSQLHandler(BaseHandler):
 
 
 define("port", default=8888, help="run on the given port", type=int)
+options.logging = "warning"
 settings = {
             "static_path": os.path.join(os.path.dirname(__file__), "static"),
             #it is important, that you generate some proper randomness on your own.
-            "cookie_secret": "Nzk4MmYwZmUzZTBmYmUwMDFjODcyNzM0Mzg0ZDc1ZWQgIC0K"
-            }
+            "cookie_secret": "Nzk4MmYwZmUzZTBmYmUwMDFjODcyNzM0Mzg0ZDc1ZWQgIC0K",
+            "template_path": os.path.join(os.path.dirname(__file__), "static/templates")}
 
 urls = [
         (r"/login", LoginHandler),
