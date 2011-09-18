@@ -75,7 +75,12 @@ class LoginHandler(BaseHandler):
         self.dbi.execute(
                 "SELECT pwhash FROM users WHERE username=?",
                 (user,))
-        true_passwordhash = self.dbi.fetchone()[0]
+        response = self.dbi.fetchone()
+        if response is None:
+            self.write({"message": "Incorrect."})
+            self.redirect("/login")
+            return
+        true_passwordhash = response[0]
         if passwordhash == true_passwordhash:
             sessionstring = ""
             for x in range(20):
