@@ -8,10 +8,14 @@ $(document).ready(
 					"/login",
 					$("#form").serialize(),
 					function(data){
-						alert(data["message"]);
-						window.location="/backend";
+						if (data["message"] == "correct") {
+							window.location="/backend";
+						}
+						else {
+							window.location="/login";
+						}
 					},
-					"json"
+					dataType="json"
 				)
 			}
 		)

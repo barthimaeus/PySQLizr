@@ -56,12 +56,13 @@ class BaseHandler(tornado.web.RequestHandler):
     def handle_authentication(self):
         if not self.current_user:
             self.redirect("/login")
-            return
+            return False
         try:
             self.usersession = self.get_current_session()
         except SessionTimeout:
             self.redirect("/login")
-            return
+            return False
+        return True
 
 
 class LoginHandler(BaseHandler):
@@ -77,8 +78,7 @@ class LoginHandler(BaseHandler):
                 (user,))
         response = self.dbi.fetchone()
         if response is None:
-            self.write({"message": "Incorrect."})
-            self.redirect("/login")
+            self.write({"message": "incorrect"})
             return
         true_passwordhash = response[0]
         if passwordhash == true_passwordhash:
@@ -91,22 +91,24 @@ class LoginHandler(BaseHandler):
             self.set_secure_cookie("user", self.get_argument("user"))
             self.set_secure_cookie("session", sessionstring)
             usersession = self.get_current_session(sessionstring)
-            self.write({"message": "Accepted."})
+            self.write({"message": "correct"})
+            return
         else:
-            self.write({"message": "Incorrect."})
-            self.redirect("/login")
+            self.write({"message": "incorrect"})
 
 
 class BackendHandler(BaseHandler):
     def get(self):
-        self.handle_authentication()
+        if not self.handle_authentication():
+            return
         backendformfile = "backend_form.html"
         self.dbi.execute("SELECT name FROM sqlite_master;")
         tablenames = map(lambda x: x[0], self.dbi.fetchall())
         self.render(backendformfile, tables=tablenames)
 
     def post(self):
-        self.handle_authentication()
+        if not self.handle_authentication():
+            return
         backendformeditorfile = "backend_form_editor.html"
         table = self.get_argument("table")
         response = {"table": table}
@@ -130,7 +132,8 @@ class BackendHandler(BaseHandler):
 
 class CustomSQLHandler(BaseHandler):
     def post(self):
-        self.handle_authentication()
+        if not self.handle_authentication():
+            return
         query = self.get_argument("sqlinput")
         if query == "logout":
             self.usersession.logout()
@@ -151,7 +154,7 @@ class CustomSQLHandler(BaseHandler):
 
 
 define("port", default=8889, help="run on the given port", type=int)
-options.logging = "warning"
+options.logging = "info"
 settings = {
             "static_path": os.path.join(os.path.dirname(__file__), "static"),
             #it is important, that you generate some proper randomness on your own.
