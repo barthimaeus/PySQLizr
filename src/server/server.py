@@ -106,25 +106,13 @@ class BackendHandler(BaseHandler):
         table = self.get_argument("table")
         response = {"table": table}
         self.dbi.execute(
-                "SELECT sql FROM sqlite_master WHERE name=?;",
-                (table,))
-        tablestatement = self.dbi.fetchone()[0]
-        tablestatement = tablestatement.split("(")
-        tablestatement = "".join(tablestatement[1:])
-        tablestatement = tablestatement.split(")")
-        tablestatement = "".join(tablestatement[:-1])
-        tablestatement = tablestatement.split(", ")
-        mapfunc = (lambda x:
-                        (not ((" REFERENCES " in x) or (" references " in x))
-                         and x
-                         or x.split(" ")[0]))
-        tableschema = map(mapfunc, tablestatement)
+                "PRAGMA TABLE_INFO({0});".format(table))
+        tableschema = [(x[1], x[2]) for x in self.dbi.fetchall()]
 
         self.dbi.execute("SELECT rowid,* FROM {0};".format(table))
         tablerows = self.dbi.fetchall()
         escapefunction = lambda x: html_escape("%s" % x)
         tablerows = [map(escapefunction, x) for x in tablerows]
-
         renderedtemplate = self.render_string(
                                 backendformeditorfile,
                                 schema=tableschema,
@@ -157,7 +145,7 @@ class CustomSQLHandler(BaseHandler):
         self.write(response)
 
 
-define("port", default=8888, help="run on the given port", type=int)
+define("port", default=8889, help="run on the given port", type=int)
 options.logging = "warning"
 settings = {
             "static_path": os.path.join(os.path.dirname(__file__), "static"),
@@ -167,6 +155,7 @@ settings = {
 
 urls = [
         (r"/login", LoginHandler),
+        (r"/", BackendHandler),
         (r"/backend", BackendHandler),
         (r"/customsql", CustomSQLHandler)
         ]

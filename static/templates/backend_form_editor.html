@@ -2,7 +2,7 @@
 	<thead class="ui-widget-header">
 		<tr>
 		{% for field in schema %}
-		<th>{{ field }}</th>
+		<th>{{ field[0] }} - {{ field[1] }}</th>
 		{% end %}
 		<th></th>
 		</tr>
@@ -11,7 +11,7 @@
 		{% for row in rows %}
 			<tr class="editorrow"  targetrow="{{ row[0] }}">
 				{% for nr, field in enumerate(row[1:]) %}
-				<td class="editorcell" column="{{ schema[nr].split(" ")[0] }}">
+				<td class="editorcell" column="{{ schema[nr][0] }}">
 				{{ field }}
 				</td>
 				{% end %}
