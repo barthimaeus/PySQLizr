@@ -1,3 +1,16 @@
+function load_table(table) {
+	$.post(
+		"/backend",
+		{"table": table},
+		function(data){
+			$("#editor").html(data["editortemplate"]);
+			$("#editortitle").html("Editor: "+data["table"]);
+			$("#newrow").button();
+		},
+		"json"
+	);
+}
+
 $(document).ready(
 	function(){
 		$("#sqlinputbutton").button();
@@ -8,13 +21,15 @@ $(document).ready(
 					"/customsql",
 					$("#sqlinputform").serialize(),
 					function(data){
+						var table = $("#editortable").attr("targettable");
 						alert("Request Status:\n"+data["status"]+"\n\n"+data["response"]);
-						window.location="/backend";
+						load_table(table);
 					},
 					"json"
 				);
 			}
 		);
+
 
 		$("#logoutbutton").button();
 
@@ -91,7 +106,8 @@ $(document).ready(
 							{"sqlinput": sql},
 							function(data){
 								alert("Request Status:\n"+data["status"]+"\n\n"+data["response"]);
-								window.location="/backend";
+								var table = $("#editortable").attr("targettable");
+								load_table(table);
 							},
 							"json"
 						);
